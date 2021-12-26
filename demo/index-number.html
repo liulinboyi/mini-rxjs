@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <button class="btn btn-default ripple btn-lg">点击</button>
+    </div>
+    <div class="number">
+
+    </div>
+</body>
+</html>
+
+
+<script type="module">
+    import { Observable, map, debounceTime } from "../dist/index.js"
+let input = document.querySelector(".input")
+let btn = document.querySelector(".btn")
+let number = document.querySelector(".number")
+// console.log(Observable)
+let count = 0;
+const source = new Observable((observer) => {
+    let hadler = () => {
+        // debugger;
+        observer.next(count++);
+    }
+    btn.addEventListener("click", hadler)
+    return {
+        // unsubscribe时执行
+        unsubscribe: () => {
+            // 取消监听
+            btn.removeEventListener("click", hadler);
+            console.log('done')
+        },
+    };
+});
+
+const subscription = source.pipe(map((i) => ++i),debounceTime(500)).subscribe({
+    next: (v) => {
+        console.log(v);
+        number.innerHTML = v;
+    },
+    complete: () => console.log('complete'),
+});
+
+console.log(subscription)
+</script>
+
+<style>
+    .color {
+        background: red;
+        width: 100px;
+        height: 100px;
+    }
+
+    /* .btn-default:active:focus,
+    .btn-default:active:hover {
+        color: #333;
+        background-color: lightseagreen;
+        border-color: #8c8c8c;
+    }
+
+    .btn {
+        background: #eee;
+    } */
+
+
+    .ripple {
+        position: relative;
+        /* //此处不需要设置overflow:hidden,因为after元素需要溢出显示 */
+    }
+
+    .ripple:focus {
+        outline: none;
+    }
+
+    .ripple:after {
+        content: "";
+        display: block;
+        position: absolute;
+        /* //扩大伪类元素4个方向各10px */
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        pointer-events: none;
+        background-color: rgb(41, 176, 255);
+        background-repeat: no-repeat;
+        background-position: 50%;
+        opacity: 0;
+        transition: all .3s;
+    }
+
+    .ripple:active:after {
+        opacity: .3;
+        /* //设置初始状态 */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transition: 0s;
+    }
+</style>

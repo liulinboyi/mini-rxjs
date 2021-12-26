@@ -1,0 +1,19 @@
+{
+  "name": "rxjs",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "rxjs": "latest"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.4"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

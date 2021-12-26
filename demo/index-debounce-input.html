@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .color {
+            background: red;
+            width: 100px;
+            height: 100px;
+        }
+
+        /* .btn-default:active:focus,
+        .btn-default:active:hover {
+            color: #333;
+            background-color: lightseagreen;
+            border-color: #8c8c8c;
+        }
+    
+        .btn {
+            background: #eee;
+        } */
+
+
+        .ripple {
+            position: relative;
+            /* //此处不需要设置overflow:hidden,因为after元素需要溢出显示 */
+        }
+
+        .ripple:focus {
+            outline: none;
+        }
+
+        .ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            /* //扩大伪类元素4个方向各10px */
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            pointer-events: none;
+            background-color: rgb(41, 176, 255);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            opacity: 0;
+            transition: all .3s;
+        }
+
+        .ripple:active:after {
+            opacity: .3;
+            /* //设置初始状态 */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            transition: 0s;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input class="input" />
+        <button class="btn btn-default ripple btn-lg">取消订阅</button>
+    </div>
+    <div class="number">
+
+    </div>
+</body>
+</html>
+
+<script>
+    // jsonp
+    window.weather_data = {}
+
+    function __jp2(data) {
+        console.log(data)
+        window.weather_data = data;
+        document.querySelector(".weather").remove()
+    }
+
+    function jsonp() {
+        let script = document.createElement("script")
+        script.src =
+            `https://wis.qq.com/weather/common?weather_type=observe|forecast_24h|air&source=pc&province=%E4%B8%8A%E6%B5%B7%E5%B8%82&city=%E4%B8%8A%E6%B5%B7%E5%B8%82&callback=__jp2`
+        script.className = "weather"
+        let body = document.querySelector("body")
+        body.appendChild(script)
+    }
+</script>
+
+<script type="module">
+    import { Observable, map, debounceTime } from "../dist/index.js"
+let input = document.querySelector(".input")
+let btn = document.querySelector(".btn")
+let number = document.querySelector(".number")
+// console.log(Observable)
+const source = new Observable((observer) => {
+    let hadler = () => {
+        // debugger;
+        observer.next(input.value);
+    }
+    input.addEventListener("input", hadler)
+    return {
+        // unsubscribe时执行
+        unsubscribe: () => {
+            // 取消监听
+            input.removeEventListener("input", hadler);
+            console.log('done')
+        },
+    };
+});
+
+jsonp()
+
+const subscription = source.pipe(map((i) => i),debounceTime(500)).subscribe({
+    next: async (v) => {
+        console.log(v);
+        // let res = (await fetch(`https://wis.qq.com/weather/common?source=pc&weather_type=observe|forecast_24h|air&province=${v}&city=&county=`,{
+        //     method: "get",
+        // }))
+        // res = await res.json()
+
+        // number.innerHTML = res;
+
+        number.innerHTML = v;
+    },
+    complete: () => console.log('complete'),
+});
+
+console.log(subscription)
+
+
+btn.addEventListener("click", () => {
+    subscription.unsubscribe()
+})
+</script>

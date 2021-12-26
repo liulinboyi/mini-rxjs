@@ -1,0 +1,51 @@
+<div>
+    <input class="input" type="color" />
+    <button class="btn">点击</button>
+</div>
+<div class="color">
+
+</div>
+
+<script type="module">
+    import { Observable, map, debounceTime } from "../dist/index.js"
+let input = document.querySelector(".input")
+let btn = document.querySelector(".btn")
+let color = document.querySelector(".color")
+// console.log(Observable)
+const source = new Observable((observer) => {
+    // setTimeout(() => {
+    //     observer.next(1);
+    // }, 3000);
+    let hadler = () => {
+        // debugger;
+        observer.next(input.value)
+    }
+    btn.addEventListener("click", hadler)
+    return {
+        // unsubscribe时执行
+        unsubscribe: () => {
+            // 取消监听
+            btn.removeEventListener("click", hadler);
+            console.log('done')
+        },
+    };
+});
+
+const subscription = source.pipe(map((i) => i),debounceTime(1000)).subscribe({
+    next: (v) => {
+        console.log(v);
+        color.style.background = v;
+    },
+    complete: () => console.log('complete'),
+});
+
+console.log(subscription)
+</script>
+
+<style>
+    .color {
+        background: red;
+        width: 100px;
+        height: 100px;
+    }
+</style>
